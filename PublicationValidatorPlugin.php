@@ -34,89 +34,92 @@ class PublicationValidatorPlugin extends GenericPlugin
 	{
 		return __('plugins.generic.publicationValidator.description');
 	}
-    /**
-     * Add a settings action to the plugin's entry in the
-     * plugins list.
-     *
-     * @param Request $request
-     * @param array $actionArgs
-     * @return array
-     */
-    public function getActions($request, $actionArgs) {
 
-        // Get the existing actions
-        $actions = parent::getActions($request, $actionArgs);
+	/**
+	 * Add a settings action to the plugin's entry in the
+	 * plugins list.
+	 *
+	 * @param Request $request
+	 * @param array $actionArgs
+	 * @return array
+	 */
+	public function getActions($request, $actionArgs)
+	{
 
-        // Only add the settings action when the plugin is enabled
-        if (!$this->getEnabled()) {
-            return $actions;
-        }
+		// Get the existing actions
+		$actions = parent::getActions($request, $actionArgs);
 
-        // Create a LinkAction that will make a request to the
-        // plugin's `manage` method with the `settings` verb.
-        $router = $request->getRouter();
-        import('lib.pkp.classes.linkAction.request.AjaxModal');
-        $linkAction = new LinkAction(
-            'settings',
-            new AjaxModal(
-                $router->url(
-                    $request,
-                    null,
-                    null,
-                    'manage',
-                    null,
-                    [
-                        'verb' => 'settings',
-                        'plugin' => $this->getName(),
-                        'category' => 'generic'
-                    ]
-                ),
-                $this->getDisplayName()
-            ),
-            __('manager.plugins.settings'),
-            null
-        );
+		// Only add the settings action when the plugin is enabled
+		if (!$this->getEnabled()) {
+			return $actions;
+		}
 
-        // Add the LinkAction to the existing actions.
-        // Make it the first action to be consistent with
-        // other plugins.
-        array_unshift($actions, $linkAction);
+		// Create a LinkAction that will make a request to the
+		// plugin's `manage` method with the `settings` verb.
+		$router = $request->getRouter();
+		import('lib.pkp.classes.linkAction.request.AjaxModal');
+		$linkAction = new LinkAction(
+			'settings',
+			new AjaxModal(
+				$router->url(
+					$request,
+					null,
+					null,
+					'manage',
+					null,
+					[
+						'verb' => 'settings',
+						'plugin' => $this->getName(),
+						'category' => 'generic'
+					]
+				),
+				$this->getDisplayName()
+			),
+			__('manager.plugins.settings'),
+			null
+		);
 
-        return $actions;
-    }
+		// Add the LinkAction to the existing actions.
+		// Make it the first action to be consistent with
+		// other plugins.
+		array_unshift($actions, $linkAction);
 
-    /**
-     * Show and save the settings form when the settings action
-     * is clicked.
-     *
-     * @param array $args
-     * @param Request $request
-     * @return JSONMessage
-     */
-    public function manage($args, $request) {
-        switch ($request->getUserVar('verb')) {
-            case 'settings':
+		return $actions;
+	}
 
-                // Load the custom form
-                $this->import('PublicationValidatorPluginSettingsForm');
-                $form = new PublicationValidatorPluginSettingsForm($this);
+	/**
+	 * Show and save the settings form when the settings action
+	 * is clicked.
+	 *
+	 * @param array $args
+	 * @param Request $request
+	 * @return JSONMessage
+	 */
+	public function manage($args, $request)
+	{
+		switch ($request->getUserVar('verb')) {
+			case 'settings':
 
-                // Fetch the form the first time it loads, before
-                // the user has tried to save it
-                if (!$request->getUserVar('save')) {
-                    $form->initData();
-                    return new JSONMessage(true, $form->fetch($request));
-                }
+				// Load the custom form
+				$this->import('PublicationValidatorPluginSettingsForm');
+				$form = new PublicationValidatorPluginSettingsForm($this);
 
-                // Validate and save the form data
-                $form->readInputData();
-                if ($form->validate()) {
-                    $form->execute();
-                    return new JSONMessage(true);
-                }
-        }
-        return parent::manage($args, $request);
-    }
+				// Fetch the form the first time it loads, before
+				// the user has tried to save it
+				if (!$request->getUserVar('save')) {
+					$form->initData();
+					return new JSONMessage(true, $form->fetch($request));
+				}
+
+				// Validate and save the form data
+				$form->readInputData();
+				if ($form->validate()) {
+					$form->execute();
+					return new JSONMessage(true);
+				}
+		}
+		return parent::manage($args, $request);
+	}
 
 	/**
 	 * Load a setting for a specific journal or load it from the config.inc.php if it is specified there.
@@ -126,7 +129,8 @@ class PublicationValidatorPlugin extends GenericPlugin
 	 * @return mixed          The setting value, either from the database for this context
 	 *                        or from the global configuration file.
 	 */
-	function getSetting($contextId, $name) {
+	function getSetting($contextId, $name)
+	{
 		switch ($name) {
 			case 'enableOpenAire':
 				$config_value = Config::getVar('publicationValidator', 'openair');
@@ -168,20 +172,20 @@ class PublicationValidatorPlugin extends GenericPlugin
 	 * validated before publish when enabled OpenAire
 	 * @return string
 	 */
-	public function validateOpenAireFields() :string
+	public function validateOpenAireFields(): string
 	{
-		return __('plugins.generic.publicationValidator.field.abstract').' ,'.
-			       __('plugins.generic.publicationValidator.field.authors').' ,'.
-			       __('plugins.generic.publicationValidator.field.authorAffiliation').' ,'.
-			       __('plugins.generic.publicationValidator.field.articleTitle').' ,'.
-			       __('plugins.generic.publicationValidator.field.locale').' ,'.
-			       __('plugins.generic.publicationValidator.field.publisher').' ,'.
-			       __('plugins.generic.publicationValidator.field.doi').' ,'.
-			       __('plugins.generic.publicationValidator.field.issn').' ,'.
-			       __('plugins.generic.publicationValidator.field.subjects').' ,'.
-			       __('plugins.generic.publicationValidator.field.licenseUrl').' ,'.
-			       __('plugins.generic.publicationValidator.field.rights').' ,'.
-			       __('plugins.generic.publicationValidator.field.common');
+		return __('plugins.generic.publicationValidator.field.abstract') . ' ,' .
+			__('plugins.generic.publicationValidator.field.authors') . ' ,' .
+			__('plugins.generic.publicationValidator.field.authorAffiliation') . ' ,' .
+			__('plugins.generic.publicationValidator.field.articleTitle') . ' ,' .
+			__('plugins.generic.publicationValidator.field.locale') . ' ,' .
+			__('plugins.generic.publicationValidator.field.publisher') . ' ,' .
+			__('plugins.generic.publicationValidator.field.doi') . ' ,' .
+			__('plugins.generic.publicationValidator.field.issn') . ' ,' .
+			__('plugins.generic.publicationValidator.field.subjects') . ' ,' .
+			__('plugins.generic.publicationValidator.field.licenseUrl') . ' ,' .
+			__('plugins.generic.publicationValidator.field.rights') . ' ,' .
+			__('plugins.generic.publicationValidator.field.common');
 	}
 
 	/**
@@ -189,47 +193,60 @@ class PublicationValidatorPlugin extends GenericPlugin
 	 * validated before publish when enabled DOAJ
 	 * @return string
 	 */
-	public function validateDoajFields() :string
+	public function validateDoajFields(): string
 	{
-		return __('plugins.generic.publicationValidator.field.abstract').' ,'.
-			__('plugins.generic.publicationValidator.field.authors').' ,'.
-			__('plugins.generic.publicationValidator.field.authorAffiliation').' ,'.
-			__('plugins.generic.publicationValidator.field.articleTitle').' ,'.
-			__('plugins.generic.publicationValidator.field.locale').' ,'.
-			__('plugins.generic.publicationValidator.field.publisher').' ,'.
-			__('plugins.generic.publicationValidator.field.doi').' ,'.
-			__('plugins.generic.publicationValidator.field.issn').' ,'.
+		return __('plugins.generic.publicationValidator.field.abstract') . ' ,' .
+			__('plugins.generic.publicationValidator.field.authors') . ' ,' .
+			__('plugins.generic.publicationValidator.field.authorAffiliation') . ' ,' .
+			__('plugins.generic.publicationValidator.field.articleTitle') . ' ,' .
+			__('plugins.generic.publicationValidator.field.locale') . ' ,' .
+			__('plugins.generic.publicationValidator.field.publisher') . ' ,' .
+			__('plugins.generic.publicationValidator.field.doi') . ' ,' .
+			__('plugins.generic.publicationValidator.field.issn') . ' ,' .
 			__('plugins.generic.publicationValidator.field.common');
 	}
 
 	/**
 	 * Make additional validation checks against publishing requirements
 	 *
-	 * @see PKPPublicationService::validatePublish()
 	 * @param $hookName string
 	 * @param $args array [
-	 *		@option array Validation errors already identified
-	 *		@option Publication The publication to validate
-	 *		@option Submission The submission of the publication being validated
-	 *		@option array The locales accepted for this object
-	 *		@option string The primary locale for this object
+	 * @option array Validation errors already identified
+	 * @option Publication The publication to validate
+	 * @option Submission The submission of the publication being validated
+	 * @option array The locales accepted for this object
+	 * @option string The primary locale for this object
 	 * ]
+	 * @see PKPPublicationService::validatePublish()
 	 */
-	public function validate($hookName, $args) {
-		$errors =& $args[0];
-		$publication = $args[1];
-		$submission = $args[2];
-		$request = PKPApplication::get()->getRequest();
-		$context = $request->getContext();
+	public function validate($hookName, $args)
+	{
+		try {
+			$errors =& $args[0];
+			$submission = $args[2];
+			$request = PKPApplication::get()->getRequest();
+			$context = $request->getContext();
 
-		if(Config::getVar('publicationValidator', 'doaj') === 1 || $this->getSetting($context->getId(), 'enableDoaj') == 1){
-			$errors = $errors + (new ServiceDOAJ())->validate($publication,$submission,$context,'DOAJ')->getErrors();
-		}
-		if(Config::getVar('publicationValidator', 'openair') === 1 || $this->getSetting($context->getId(), 'enableOpenAire') == 1){
-			$errors = $errors + (new ServiceOpenAire())->validate($publication,$submission,$context,'OpenAire')->getErrors();
-		}
-		if(!empty($errors)){
-			$errors = array_unique($errors);
+			//		if(Config::getVar('publicationValidator', 'doaj') === 1 || $this->getSetting($context->getId(), 'enableDoaj') == 1){
+			//			$errors = $errors + (new ServiceDOAJ())->validate($publication,$submission,$context,'DOAJ')->getErrors();
+			//		}
+			//		if(Config::getVar('publicationValidator', 'openair') === 1 || $this->getSetting($context->getId(), 'enableOpenAire') == 1){
+			//			$errors = $errors + (new ServiceOpenAire())->validate($publication,$submission,$context,'OpenAire')->getErrors();
+			//		}
+			//		if(!empty($errors)){
+			//			$errors = array_unique($errors);
+			//		}
+			$services = ['doaj', 'crossref'];
+			$metadata = (new PublicationValidatorResource())->transformSubmissionMetadata($submission, $context);
+			foreach ($services as $service) {
+				$validator = PublicationValidatorFactory::createValidator($service);
+				$isValid = $validator->validate($metadata);
+				if (!$isValid){
+					$errors = $validator->getErrors();
+				}
+			}
+		} catch (Exception $e) {
+			echo "Error: " . $e->getMessage();
 		}
 
 	}
