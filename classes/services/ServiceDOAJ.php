@@ -1,5 +1,7 @@
 <?php
-import('plugins.generic.publicationValidator.classes.PublicationValidator');
+namespace APP\plugins\generic\publicationValidator\classes\services;
+
+use APP\plugins\generic\publicationValidator\classes\PublicationValidator;
 
 class ServiceDOAJ extends PublicationValidator
 {
@@ -12,6 +14,7 @@ class ServiceDOAJ extends PublicationValidator
 		$schema = $this->getValidatorSchema('DOAJ');
 		$jsonData = json_encode($schema);
 		$requiredFields = json_decode($jsonData,TRUE);
-		$this->checkRequiredFields($metadata, $requiredFields);
+		$this->checkRequiredFields($metadata, $requiredFields['metaData']);
+		$this->supportedLocalForMetadata($metadata, $requiredFields['metaData']);
 	}
 }

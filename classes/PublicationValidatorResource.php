@@ -1,4 +1,8 @@
 <?php
+namespace APP\plugins\generic\publicationValidator\classes;
+
+use APP\submission\Submission;
+use PKP\context\Context;
 
 class PublicationValidatorResource
 {
@@ -6,14 +10,14 @@ class PublicationValidatorResource
 	{
 		$publication = $submission->getCurrentPublication();
 		return [
-			'title' => $publication->getData('title',$publication->getData('locale')),
+			'title' => $publication->getData('title',null),
 			'authors' => $publication->getData('authors'),
 			'locale' => $publication->getData('locale'),
 			'abstract' => $publication->getData('abstract',$publication->getData('locale')),
 			'publisher' => $context->getData('publisherInstitution'),
 			'printIssn' => $context->getData('printIssn'),
 			'onlineIssn' => $context->getData('onlineIssn'),
-			'doi' => $submission->getStoredPubId('doi'),
+			'doi' => '',
 			'licenseUrl' => $publication->getData('licenseUrl'),
 			'subjects' => $publication->getData('subjects'),
 			'rights' => $publication->getData('rights'),

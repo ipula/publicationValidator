@@ -1,0 +1,26 @@
+{
+	"localizedFields": {
+		"abstract": [
+			{
+				"isoName" :"English",
+				"code":"en"
+			}
+		],
+		"title": [
+			{
+				"isoName" :"English",
+				"code":"en"
+			},
+			{
+				"isoName" :"French",
+				"code":"fr_CA"
+			}
+		]
+	},
+	"metaData": {
+		"authors": "required",
+		"printIssn": "required",
+		"locale":"required",
+		"doi": "required"
+	}
+}

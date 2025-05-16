@@ -1,8 +1,16 @@
 <?php
+namespace APP\plugins\generic\publicationValidator;
 
-import('lib.pkp.classes.plugins.GenericPlugin');
-import('plugins.generic.publicationValidator.classes.services.ServiceDOAJ');
-import('plugins.generic.publicationValidator.classes.services.ServiceOpenAire');
+use APP\core\Request;
+use APP\plugins\generic\publicationValidator\classes\PublicationValidatorFactory;
+use APP\plugins\generic\publicationValidator\classes\PublicationValidatorResource;
+use Exception;
+use PKP\config\Config;
+use PKP\core\JSONMessage;
+use PKP\core\PKPApplication;
+use PKP\linkAction\LinkAction;
+use PKP\linkAction\request\AjaxModal;
+use PKP\plugins\GenericPlugin;
 
 class PublicationValidatorPlugin extends GenericPlugin
 {
@@ -57,7 +65,6 @@ class PublicationValidatorPlugin extends GenericPlugin
 		// Create a LinkAction that will make a request to the
 		// plugin's `manage` method with the `settings` verb.
 		$router = $request->getRouter();
-		import('lib.pkp.classes.linkAction.request.AjaxModal');
 		$linkAction = new LinkAction(
 			'settings',
 			new AjaxModal(
@@ -95,13 +102,12 @@ class PublicationValidatorPlugin extends GenericPlugin
 	 * @param Request $request
 	 * @return JSONMessage
 	 */
-	public function manage($args, $request)
-	{
+	public function manage($args, $request): JSONMessage
+    {
 		switch ($request->getUserVar('verb')) {
 			case 'settings':
 
 				// Load the custom form
-				$this->import('PublicationValidatorPluginSettingsForm');
 				$form = new PublicationValidatorPluginSettingsForm($this);
 
 				// Fetch the form the first time it loads, before
@@ -219,8 +225,8 @@ class PublicationValidatorPlugin extends GenericPlugin
 	 * ]
 	 * @see PKPPublicationService::validatePublish()
 	 */
-	public function validate($hookName, $args)
-	{
+	public function validate($hookName, $args): void
+    {
 		try {
 			$errors =& $args[0];
 			$submission = $args[2];
@@ -236,7 +242,7 @@ class PublicationValidatorPlugin extends GenericPlugin
 			//		if(!empty($errors)){
 			//			$errors = array_unique($errors);
 			//		}
-			$services = ['doaj', 'crossref'];
+			$services = ['doaj'];
 			$metadata = (new PublicationValidatorResource())->transformSubmissionMetadata($submission, $context);
 			foreach ($services as $service) {
 				$validator = PublicationValidatorFactory::createValidator($service);

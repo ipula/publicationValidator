@@ -1,5 +1,14 @@
 <?php
-import('lib.pkp.classes.form.Form');
+namespace APP\plugins\generic\publicationValidator;
+
+use APP\core\Application;
+use APP\notification\NotificationManager;
+use APP\template\TemplateManager;
+use PKP\form\Form;
+use PKP\form\validation\FormValidatorCSRF;
+use PKP\form\validation\FormValidatorPost;
+use PKP\notification\Notification;
+
 class PublicationValidatorPluginSettingsForm extends Form
 {
 	public $plugin;
@@ -53,14 +62,6 @@ class PublicationValidatorPluginSettingsForm extends Form
 	 * @return string
 	 */
 	public function fetch($request, $template = null, $display = false) {
-		AppLocale::requireComponents(
-			LOCALE_COMPONENT_APP_DEFAULT,
-			LOCALE_COMPONENT_APP_COMMON,
-			LOCALE_COMPONENT_PKP_DEFAULT,
-			LOCALE_COMPONENT_PKP_COMMON,
-			LOCALE_COMPONENT_PKP_USER
-		);
-
 		// Pass the plugin name to the template so that it can be
 		// used in the URL that the form is submitted to
 		$templateMgr = TemplateManager::getManager($request);
@@ -95,11 +96,10 @@ class PublicationValidatorPluginSettingsForm extends Form
 		$this->plugin->updateSetting($contextId, 'enableJGate', $this->getData('enableJGate'));
 
 		// Tell the user that the save was successful.
-		import('classes.notification.NotificationManager');
 		$notificationMgr = new NotificationManager();
 		$notificationMgr->createTrivialNotification(
 			Application::get()->getRequest()->getUser()->getId(),
-			NOTIFICATION_TYPE_SUCCESS,
+            Notification::NOTIFICATION_TYPE_SUCCESS,
 			['contents' => __('common.changesSaved')]
 		);
 
