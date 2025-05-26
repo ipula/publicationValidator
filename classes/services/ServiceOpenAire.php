@@ -1,15 +1,12 @@
 <?php
 namespace APP\plugins\generic\publicationValidator\classes\services;
 
+use APP\plugins\generic\publicationValidator\classes\dto\PublicationMetadata;
 use APP\plugins\generic\publicationValidator\classes\PublicationValidator;
 
 class ServiceOpenAire extends PublicationValidator
 {
-	/**
-	 * @param array $metadata
-	 * @return void
-	 */
-	protected function validateMetadata(array $metadata): void {
+	protected function validateMetadata(PublicationMetadata $metadata): void {
 		$schema = $this->getValidatorSchema('DOAJ');
 		$this->checkRequiredFields($metadata, $schema);
 	}

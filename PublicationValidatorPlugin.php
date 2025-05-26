@@ -5,12 +5,14 @@ use APP\core\Request;
 use APP\plugins\generic\publicationValidator\classes\PublicationValidatorFactory;
 use APP\plugins\generic\publicationValidator\classes\PublicationValidatorResource;
 use Exception;
+use HookRegistry;
 use PKP\config\Config;
 use PKP\core\JSONMessage;
 use PKP\core\PKPApplication;
 use PKP\linkAction\LinkAction;
 use PKP\linkAction\request\AjaxModal;
 use PKP\plugins\GenericPlugin;
+use PKP\plugins\Hook;
 
 class PublicationValidatorPlugin extends GenericPlugin
 {
@@ -21,7 +23,7 @@ class PublicationValidatorPlugin extends GenericPlugin
 
 		if ($success && $this->getEnabled()) {
 			// Do something when the plugin is enabled
-			\HookRegistry::register('Publication::validatePublish', [$this, 'validate']);
+			Hook::add('Publication::validatePublish', [$this, 'validate']);
 		}
 
 		return $success;
@@ -135,99 +137,49 @@ class PublicationValidatorPlugin extends GenericPlugin
 	 * @return mixed          The setting value, either from the database for this context
 	 *                        or from the global configuration file.
 	 */
-	function getSetting($contextId, $name)
+	function getSetting(mixed $contextId, $name) :mixed
 	{
-		switch ($name) {
-			case 'enableOpenAire':
-				$config_value = Config::getVar('publicationValidator', 'openair');
-				break;
-			case 'enableDoaj':
-				$config_value = Config::getVar('publicationValidator', 'doaj');
-				break;
-			case 'enableBase':
-				$config_value = Config::getVar('publicationValidator', 'base');
-				break;
-			case 'enableWebOfScience':
-				$config_value = Config::getVar('publicationValidator', 'web_of_science');
-				break;
-			case 'enableCrossref':
-				$config_value = Config::getVar('publicationValidator', 'crossref');
-				break;
-			case 'enableJGate':
-				$config_value = Config::getVar('publicationValidator', 'jgate');
-				break;
-			default:
-				return parent::getSetting($contextId, $name);
-		}
+        $configValue = match ($name) {
+            'enableOpenAire' => Config::getVar('publicationValidator', 'openair'),
+            'enableDoaj' => Config::getVar('publicationValidator', 'doaj'),
+            'enableBase' => Config::getVar('publicationValidator', 'base'),
+            'enableWebOfScience' => Config::getVar('publicationValidator', 'web_of_science'),
+            'enableCrossref' => Config::getVar('publicationValidator', 'crossref'),
+            'enableJGate' => Config::getVar('publicationValidator', 'jgate'),
+            default => parent::getSetting($contextId, $name),
+        };
 
-		return $config_value ?: parent::getSetting($contextId, $name);
+		return $configValue ?: parent::getSetting($contextId, $name);
 	}
 
 	/**
 	 * Check if there exist a valid publication validator configuration section in the global config.inc.php of OJS.
 	 * @return boolean True, if the config file has openair, doaj, base, web_of_science, crossref, jgate set in an [PublicationValidator] section
 	 */
-	public function isGloballyConfigured($key)
+	public function isGloballyConfigured(string $key) :bool
 	{
 		$configValue = Config::getVar('publicationValidator', $key);
 		return isset($configValue) && $configValue === 1;
 	}
 
-	/**
-	 * create message which fields will be
-	 * validated before publish when enabled OpenAire
-	 * @return string
-	 */
-	public function validateOpenAireFields(): string
-	{
-		return __('plugins.generic.publicationValidator.field.abstract') . ' ,' .
-			__('plugins.generic.publicationValidator.field.authors') . ' ,' .
-			__('plugins.generic.publicationValidator.field.authorAffiliation') . ' ,' .
-			__('plugins.generic.publicationValidator.field.articleTitle') . ' ,' .
-			__('plugins.generic.publicationValidator.field.locale') . ' ,' .
-			__('plugins.generic.publicationValidator.field.publisher') . ' ,' .
-			__('plugins.generic.publicationValidator.field.doi') . ' ,' .
-			__('plugins.generic.publicationValidator.field.issn') . ' ,' .
-			__('plugins.generic.publicationValidator.field.subjects') . ' ,' .
-			__('plugins.generic.publicationValidator.field.licenseUrl') . ' ,' .
-			__('plugins.generic.publicationValidator.field.rights') . ' ,' .
-			__('plugins.generic.publicationValidator.field.common');
-	}
-
-	/**
-	 * create message which fields will be
-	 * validated before publish when enabled DOAJ
-	 * @return string
-	 */
-	public function validateDoajFields(): string
-	{
-		return __('plugins.generic.publicationValidator.field.abstract') . ' ,' .
-			__('plugins.generic.publicationValidator.field.authors') . ' ,' .
-			__('plugins.generic.publicationValidator.field.authorAffiliation') . ' ,' .
-			__('plugins.generic.publicationValidator.field.articleTitle') . ' ,' .
-			__('plugins.generic.publicationValidator.field.locale') . ' ,' .
-			__('plugins.generic.publicationValidator.field.publisher') . ' ,' .
-			__('plugins.generic.publicationValidator.field.doi') . ' ,' .
-			__('plugins.generic.publicationValidator.field.issn') . ' ,' .
-			__('plugins.generic.publicationValidator.field.common');
-	}
-
-	/**
-	 * Make additional validation checks against publishing requirements
-	 *
-	 * @param $hookName string
-	 * @param $args array [
-	 * @option array Validation errors already identified
-	 * @option Publication The publication to validate
-	 * @option Submission The submission of the publication being validated
-	 * @option array The locales accepted for this object
-	 * @option string The primary locale for this object
-	 * ]
-	 * @see PKPPublicationService::validatePublish()
-	 */
-	public function validate($hookName, $args): void
+    /**
+     * Make additional validation checks against publishing requirements
+     *
+     * @param $hookName string
+     * @param $args array [
+     * @option array Validation errors already identified
+     * @option Publication The publication to validate
+     * @option Submission The submission of the publication being validated
+     * @option array The locales accepted for this object
+     * @option string The primary locale for this object
+     * ]
+     * @throws Exception
+     * @see PKPPublicationService::validatePublish()
+     */
+	public function validate(string $hookName, array $args): void
     {
 		try {
+
 			$errors =& $args[0];
 			$submission = $args[2];
 			$request = PKPApplication::get()->getRequest();
@@ -248,11 +200,11 @@ class PublicationValidatorPlugin extends GenericPlugin
 				$validator = PublicationValidatorFactory::createValidator($service);
 				$isValid = $validator->validate($metadata);
 				if (!$isValid){
-					$errors = $validator->getErrors();
+					$errors = $validator->errors;
 				}
 			}
 		} catch (Exception $e) {
-			echo "Error: " . $e->getMessage();
+			throw new Exception($e->getMessage());
 		}
 
 	}

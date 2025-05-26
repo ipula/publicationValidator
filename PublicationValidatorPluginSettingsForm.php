@@ -52,6 +52,45 @@ class PublicationValidatorPluginSettingsForm extends Form
 		parent::readInputData();
 	}
 
+    /**
+     * create a message which fields will be
+     * validated before publish when enabled OpenAire
+     * @return string
+     */
+    public function validateOpenAireFields(): string
+    {
+        return __('plugins.generic.publicationValidator.field.abstract') . ' ,' .
+            __('plugins.generic.publicationValidator.field.authors') . ' ,' .
+            __('plugins.generic.publicationValidator.field.authorAffiliation') . ' ,' .
+            __('plugins.generic.publicationValidator.field.articleTitle') . ' ,' .
+            __('plugins.generic.publicationValidator.field.locale') . ' ,' .
+            __('plugins.generic.publicationValidator.field.publisher') . ' ,' .
+            __('plugins.generic.publicationValidator.field.doi') . ' ,' .
+            __('plugins.generic.publicationValidator.field.issn') . ' ,' .
+            __('plugins.generic.publicationValidator.field.subjects') . ' ,' .
+            __('plugins.generic.publicationValidator.field.licenseUrl') . ' ,' .
+            __('plugins.generic.publicationValidator.field.rights') . ' ,' .
+            __('plugins.generic.publicationValidator.field.common');
+    }
+
+    /**
+     * create a message which fields will be
+     * validated before publish when enabled DOAJ
+     * @return string
+     */
+    public function validateDoajFields(): string
+    {
+        return __('plugins.generic.publicationValidator.field.abstract') . ' ,' .
+            __('plugins.generic.publicationValidator.field.authors') . ' ,' .
+            __('plugins.generic.publicationValidator.field.authorAffiliation') . ' ,' .
+            __('plugins.generic.publicationValidator.field.articleTitle') . ' ,' .
+            __('plugins.generic.publicationValidator.field.locale') . ' ,' .
+            __('plugins.generic.publicationValidator.field.publisher') . ' ,' .
+            __('plugins.generic.publicationValidator.field.doi') . ' ,' .
+            __('plugins.generic.publicationValidator.field.issn') . ' ,' .
+            __('plugins.generic.publicationValidator.field.common');
+    }
+
 	/**
 	 * Fetch any additional data needed for your form.
 	 *
@@ -72,8 +111,8 @@ class PublicationValidatorPluginSettingsForm extends Form
 		$templateMgr->assign('disableOpenWebOfScience', $this->plugin->isGloballyConfigured('web_of_science'));
 		$templateMgr->assign('disableCrossref', $this->plugin->isGloballyConfigured('crossref'));
 		$templateMgr->assign('disableJGate', $this->plugin->isGloballyConfigured('jgate'));
-		$templateMgr->assign('validateOpenAireFields', $this->plugin->validateOpenAireFields());
-		$templateMgr->assign('validateDoajFields', $this->plugin->validateDoajFields());
+		$templateMgr->assign('validateOpenAireFields', $this->validateOpenAireFields());
+		$templateMgr->assign('validateDoajFields', $this->validateDoajFields());
 		$templateMgr->assign(
 			'publicationValidatorJsUrl',
 			$request->getBaseUrl() . '/' . $this->plugin->getPluginPath() . '/js/publicationValidator.js',

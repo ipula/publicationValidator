@@ -13,8 +13,7 @@ class PublicationValidatorFactory
     public static function createValidator(string $service): PublicationValidator {
         return match (strtolower($service)) {
             'doaj' => new ServiceDOAJ(),
-            'openAire' => new ServiceOpenAire(),
-            default => throw new Exception("Unknown service: $service"),
+            'openaire' => new ServiceOpenAire(),
         };
 	}
 }
