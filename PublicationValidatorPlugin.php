@@ -184,17 +184,15 @@ class PublicationValidatorPlugin extends GenericPlugin
 			$submission = $args[2];
 			$request = PKPApplication::get()->getRequest();
 			$context = $request->getContext();
+            $services = [];
 
-			//		if(Config::getVar('publicationValidator', 'doaj') === 1 || $this->getSetting($context->getId(), 'enableDoaj') == 1){
-			//			$errors = $errors + (new ServiceDOAJ())->validate($publication,$submission,$context,'DOAJ')->getErrors();
-			//		}
-			//		if(Config::getVar('publicationValidator', 'openair') === 1 || $this->getSetting($context->getId(), 'enableOpenAire') == 1){
-			//			$errors = $errors + (new ServiceOpenAire())->validate($publication,$submission,$context,'OpenAire')->getErrors();
-			//		}
-			//		if(!empty($errors)){
-			//			$errors = array_unique($errors);
-			//		}
-			$services = ['doaj'];
+            if($this->getSetting($context->getId(), 'enableDoaj') == 1){
+                $services[] = 'doaj';
+            }
+            if($this->getSetting($context->getId(), 'enableOpenAire') == 1){
+                $services[] = 'openaire';
+            }
+
 			$metadata = (new PublicationValidatorResource())->transformSubmissionMetadata($submission, $context);
 			foreach ($services as $service) {
 				$validator = PublicationValidatorFactory::createValidator($service);

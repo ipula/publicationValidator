@@ -21,4 +21,14 @@ class PublicationMetadata
         public ?array $journalTitle,
         public ?string $publisherInstitution,
     ) {}
+
+    /**
+     * Convert the instance to an array.
+     *
+     * @return array
+     */
+    public function toArray(): array
+    {
+        return get_object_vars($this);
+    }
 }

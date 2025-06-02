@@ -10,8 +10,31 @@ class ServiceDOAJ extends PublicationValidator
 
 		$schema = $this->getValidatorSchema('DOAJ');
 		$jsonData = json_encode($schema);
-		$requiredFields = json_decode($jsonData,TRUE);
-		$this->checkRequiredFields($metadata, $requiredFields['metadata']);
-		$this->supportedLocalForMetadata($metadata, $requiredFields['metadata'], $requiredFields['localizedFields']);
+//		$requiredFields = json_decode($jsonData,TRUE);
+		$this->checkRequiredFields($metadata, $this->getValidationRules(),$this->getValidationMessages());
+//		$this->supportedLocalForMetadata($metadata, $requiredFields['metadata'], $requiredFields['localizedFields']);
 	}
+
+    /**
+     * @return array[]
+     */
+    public function getValidationRules(): array
+    {
+        $validationRules = [
+            'affiliation' => [
+                'required', // Make optional for all locales
+                'string',
+                'max:255',
+            ],
+        ];
+
+        return $validationRules;
+    }
+
+    public function getValidationMessages(): array
+    {
+        return [
+            'required' => 'affiliation required',
+        ];
+    }
 }

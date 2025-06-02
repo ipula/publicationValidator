@@ -3,6 +3,7 @@
 namespace APP\plugins\generic\publicationValidator\classes;
 
 use APP\plugins\generic\publicationValidator\classes\dto\PublicationMetadata;
+use PKP\validation\ValidatorFactory;
 
 abstract class PublicationValidator
 {
@@ -51,16 +52,23 @@ abstract class PublicationValidator
         return empty($this->errors);
     }
 
-    protected function checkRequiredFields(PublicationMetadata $metadata, array $requiredFields): void
+    protected function checkRequiredFields(PublicationMetadata $metadata, array $rules, array $messages): void
     {
-        foreach ($requiredFields as $key => $field) {
-            if ($field === ValidationTypes::REQUIRED->value && empty($metadata->$key)) {
-                $this->errors[] = "Missing required field:" . $key;
-            }
-            if ($field === ValidationTypes::RECOMMENDED->value && empty($metadata->$key)) {
-                $this->errors[] = "Recommended field is missing:" . $key;
-            }
-        }
+//        foreach ($requiredFields as $key => $field) {
+//            if ($field === ValidationTypes::REQUIRED->value && empty($metadata->$key)) {
+//                $this->errors[] = "Missing required field:" . $key;
+//            }
+//            if ($field === ValidationTypes::RECOMMENDED->value && empty($metadata->$key)) {
+//                $this->errors[] = "Recommended field is missing:" . $key;
+//            }
+//        }
+        $data = $metadata->toArray();
+        $validate = ValidatorFactory::make(
+            $data,
+            $rules,
+            $messages
+        );
+        $this->errors[] = $validate->errors()->toArray()['affiliation'][0];
     }
 
     /**
