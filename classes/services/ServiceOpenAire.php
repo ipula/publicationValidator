@@ -7,11 +7,9 @@ use APP\plugins\generic\publicationValidator\classes\PublicationValidator;
 class ServiceOpenAire extends PublicationValidator
 {
 	protected function validateMetadata(PublicationMetadata $metadata): void {
-		$schema = $this->getValidatorSchema('DOAJ');
-        $jsonData = json_encode($schema);
-//		$requiredFields = json_decode($jsonData,TRUE);
-        $this->checkRequiredFields($metadata, $this->getValidationRules(),$this->getValidationMessages());
-//		$this->supportedLocalForMetadata($metadata, $requiredFields['metadata'], $requiredFields['localizedFields']);
+        $rules = $this->getValidationRules();
+        $messages = $this->getValidationMessages();
+        $this->checkRequiredFields($metadata, $rules,$messages);
     }
 
     /**
@@ -33,7 +31,7 @@ class ServiceOpenAire extends PublicationValidator
     public function getValidationMessages(): array
     {
         return [
-            'required' => 'abstract required',
+            'required' => 'affiliation required',
         ];
     }
 }

@@ -195,15 +195,32 @@ class PublicationValidatorPlugin extends GenericPlugin
 
 			$metadata = (new PublicationValidatorResource())->transformSubmissionMetadata($submission, $context);
 			foreach ($services as $service) {
-				$validator = PublicationValidatorFactory::createValidator($service);
-				$isValid = $validator->validate($metadata);
-				if (!$isValid){
-					$errors = $validator->errors;
+				$validator = PublicationValidatorFactory::createValidator($service,$request);
+				$validator->validate($metadata);
+				if (!$validator->isValid()){
+					$errors = $this->arrayValuesRecursive($validator->getErrors()->toArray());
 				}
 			}
 		} catch (Exception $e) {
+            dd($e->getMessage());
 			throw new Exception($e->getMessage());
 		}
-
 	}
+
+    /**
+     * @param $array
+     * @return array
+     */
+    private function arrayValuesRecursive($array): array
+    {
+        $values = [];
+        foreach ($array as $value) {
+            if (is_array($value)) {
+                $values = array_merge($values, $this->arrayValuesRecursive($value));
+            } else {
+                $values[] = $value;
+            }
+        }
+        return $values;
+    }
 }

@@ -19,7 +19,7 @@ final class PublicationValidatorResource
             publisher: $context->getData('publisherInstitution'),
             printIssn: $context->getData('printIssn'),
             onlineIssn: $context->getData('onlineIssn'),
-            doi: '',
+            doi: 'dfs',
             licenseUrl: $context->getData('licenseUrl'),
             subjects: $publication->getData('subjects'),
             rights: $publication->getData('rights'),

@@ -6,7 +6,7 @@ class PublicationMetadata
 {
     public function __construct(
         public ?array $title,
-        public ?array $authors,
+        public ?array $authors, // not included yet in rules
         public ?string $locale,
         public ?array $abstract,
         public ?string $publisher,
