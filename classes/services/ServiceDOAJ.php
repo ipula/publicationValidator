@@ -1,19 +1,16 @@
 <?php
-namespace APP\plugins\generic\publicationValidator\classes\services;
+namespace APP\plugins\generic\metadataCheck\classes\services;
 
 use APP\core\Request;
-use APP\plugins\generic\publicationValidator\classes\dto\PublicationMetadata;
-use APP\plugins\generic\publicationValidator\classes\PublicationValidator;
+use APP\plugins\generic\metadataCheck\classes\dto\PublicationMetadata;
+use APP\plugins\generic\metadataCheck\classes\MetadataCheck;
+use APP\plugins\generic\metadataCheck\classes\MetadataValidatorInterface;
 
-class ServiceDOAJ extends PublicationValidator
+class ServiceDOAJ extends MetadataCheck implements MetadataValidatorInterface
 {
-    private Request $request;
-    public function __construct(Request $request){
-        $this->request = $request;
-    }
 	protected function validateMetadata(PublicationMetadata $metadata): void {
         $rules = $this->getValidationRules();
-        $messages = $this->getValidationMessages();
+        $messages = $this->getValidationMessages($metadata);
 		$this->checkRequiredFields($metadata, $rules,$messages);
 	}
 
@@ -22,46 +19,13 @@ class ServiceDOAJ extends PublicationValidator
      */
     public function getValidationRules(): array
     {
-        $context = $this->request->getContext();
-        $primaryLocale = $context->getPrimaryLocale();
-        $allowedLocales = $context->getSupportedFormLocales();
-
-        $validationRules = [
-            "abstract" => [
-                'required',
-                'array',
-            ],
-            "abstract.{$primaryLocale}" => [
-                'required',
-                'string',
-            ],
-            "abstract.fr_CA" => [
-                'required',
-                'string',
-            ],
-            "title" => [
-                'required',
-                'array',
-            ],
-            "title.{$primaryLocale}" => [
-                'required',
-                'string',
-            ],
-            "locale" => [
-                'required',
-                'string',
-                'max:255',
-            ],
-            "publisher" => [
-                'required',
-                'string',
-            ],
+        return [
             "printIssn" => [
-                'required',
+                'required_without:onlineIssn',
                 'string',
             ],
             "onlineIssn" => [
-                'required',
+                'required_without:printIssn',
                 'string',
             ],
             "doi" => [
@@ -79,54 +43,20 @@ class ServiceDOAJ extends PublicationValidator
             "rights" => [
                 'required',
                 'string',
-                'max:255',
-            ],
-            "dateSubmitted" => [
-                'required',
-                'string',
             ],
             "citations" => [
                 'required',
                 'array',
-            ],
-            "journalTitle" => [
-                'required',
-                'array',
-            ],
-            "journalTitle.{$primaryLocale}" => [
-                'required',
-                'string',
             ],
             "publisherInstitution" => [
                 'required',
                 'string',
             ],
         ];
-//        dd($validationRules);
-
-        return $validationRules;
     }
 
-    public function getValidationMessages(): array
+    public function getValidationMessages(PublicationMetadata $metadata): array
     {
-        return [
-            'abstract.fr_CA.required' => 'abstract fr required',
-            'abstract.en.required' => 'abstract en required',
-            'publisherInstitution.required' => 'doi required',
-            'doi.required' => 'doi required',
-            'citations.required' => 'citations required',
-            'dateSubmitted.required' => 'dateSubmitted required',
-            'rights.required' => 'rights required',
-            'subjects.required' => 'subjects required',
-            'onlineIssn.required' => 'onlineIssn required',
-            'printIssn.required' => 'printIssn required',
-            'publisher.required' => 'publisher required',
-            'locale.required' => 'locale required',
-            'title.required' => 'title required',
-            'title.en.required' => 'title en required',
-            'journalTitle.required' => 'journalTitle required',
-            'journalTitle.en.required' => 'journalTitle en required',
-            'doi.url' => 'doi is not a valid url',
-        ];
+        return [];
     }
 }

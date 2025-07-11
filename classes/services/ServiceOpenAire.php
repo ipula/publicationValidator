@@ -1,14 +1,16 @@
 <?php
-namespace APP\plugins\generic\publicationValidator\classes\services;
+namespace APP\plugins\generic\metadataCheck\classes\services;
 
-use APP\plugins\generic\publicationValidator\classes\dto\PublicationMetadata;
-use APP\plugins\generic\publicationValidator\classes\PublicationValidator;
+use APP\core\Request;
+use APP\plugins\generic\metadataCheck\classes\dto\PublicationMetadata;
+use APP\plugins\generic\metadataCheck\classes\MetadataCheck;
+use APP\plugins\generic\metadataCheck\classes\MetadataValidatorInterface;
 
-class ServiceOpenAire extends PublicationValidator
+class ServiceOpenAire extends MetadataCheck implements MetadataValidatorInterface
 {
 	protected function validateMetadata(PublicationMetadata $metadata): void {
         $rules = $this->getValidationRules();
-        $messages = $this->getValidationMessages();
+        $messages = $this->getValidationMessages($metadata);
         $this->checkRequiredFields($metadata, $rules,$messages);
     }
 
@@ -17,21 +19,36 @@ class ServiceOpenAire extends PublicationValidator
      */
     public function getValidationRules(): array
     {
-        $validationRules = [
-            'affiliation' => [
-                'affiliation.required', // Make optional for all locales
+        return [
+            "publisherInstitution" => [
+                'required',
                 'string',
-                'max:255',
+            ],
+            "printIssn" => [
+                'required_without:onlineIssn',
+                'string',
+            ],
+            "onlineIssn" => [
+                'required_without:printIssn',
+                'string',
+            ],
+            "rights" => [
+                'required',
+                'string',
+            ],
+            "subjects" => [
+                'required',
+                'array',
+            ],
+            "contributors" => [
+                'required',
+                'array',
             ],
         ];
-
-        return $validationRules;
     }
 
-    public function getValidationMessages(): array
+    public function getValidationMessages(PublicationMetadata $metadata): array
     {
-        return [
-            'required' => 'affiliation required',
-        ];
+        return [];
     }
 }

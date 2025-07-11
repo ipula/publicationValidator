@@ -1,11 +1,13 @@
 <?php
-namespace APP\plugins\generic\publicationValidator\classes;
+namespace APP\plugins\generic\metadataCheck\classes;
 
+use APP\facades\Repo;
+use APP\publication\Publication;
 use APP\submission\Submission;
 use PKP\context\Context;
-use APP\plugins\generic\publicationValidator\classes\dto\PublicationMetadata;
+use APP\plugins\generic\metadataCheck\classes\dto\PublicationMetadata;
 
-final class PublicationValidatorResource
+final class MetadataCheckResource
 {
     public function transformSubmissionMetadata(Submission $submission, Context $context): PublicationMetadata
     {
@@ -14,19 +16,28 @@ final class PublicationValidatorResource
         return  new PublicationMetadata(
             title: $publication->getData('title'),
             authors: $publication->getData('authors')->toArray(),
-            locale: $publication->getData('locale'),
-            abstract: $publication->getData('abstract'),
-            publisher: $context->getData('publisherInstitution'),
             printIssn: $context->getData('printIssn'),
             onlineIssn: $context->getData('onlineIssn'),
-            doi: 'dfs',
+            doi: $publication->getDoi(),
             licenseUrl: $context->getData('licenseUrl'),
             subjects: $publication->getData('subjects'),
             rights: $publication->getData('rights'),
-            dateSubmitted: $submission->getData('dateSubmitted'),
             citations: $publication->getData('citations'),
-            journalTitle: $context->getData('name'),
             publisherInstitution: $context->getData('publisherInstitution'),
+            contributors:$this->getContributors($publication),
         );
+    }
+
+    /**
+     * get contributors
+     * @param Publication $publication
+     * @return array
+     */
+    private function getContributors(Publication $publication):array
+    {
+        $collector = Repo::author()->getCollector()
+            ->filterByPublicationIds([$publication->getId()]);
+        $authors = $collector->getMany();
+        return  Repo::author()->getSchemaMap()->summarizeMany($authors)->values()->toArray();
     }
 }
